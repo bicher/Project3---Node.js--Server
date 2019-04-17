@@ -13,7 +13,7 @@ pool = mysql.createPool({
   connectionLimit: 10
 });
 
-
+var favorites = [];
 // Register new user to database 
 router.post('/register', async (req, res) => {
   let userArr = await pool.query(`SELECT * FROM users WHERE username = '${req.body.username}'`)
@@ -75,20 +75,34 @@ router.get('/delete', async (req, res, ) => {
 
 // Follow Vacation 
 router.post('/follow', async (req, res) => {
-  // let favoriesObj = {
-  //   username: `${req.body.username}`,
-  //   id: `${req.body.id}`
-  // };
-  // let favoritesArr = [];
-  // favoritesArr.push(favoriesObj)
-  await pool.query(`UPDATE Vacations SET followers=${req.body.followers}+1 WHERE id=${req.body.id}`)
-  res.json({ msg: "OK" });
+ let follow = await pool.query(`SELECT * FROM Vacations WHERE id=${req.body.val}`);
+ let followerId = JSON.stringify(follow[0].id); 
+ let followerPlus = JSON.stringify(follow[0].followers);   
+ followerPlus++;
+  await pool.query(`UPDATE Vacations SET followers=${followerPlus} WHERE id=${followerId}`)
+  let allVacations = await pool.query(`SELECT * FROM Vacations`);
+  let favorite = await pool.query(`SELECT * FROM Vacations WHERE id=${followerId}`);
+  favorites.push(favorite[0]);
+  favoritesArr = Array.from(new Set(favorites.concat(allVacations)));
+  allVacations = favoritesArr;
+  function getUnique(allVacations, comp) {
+    const unique = allVacations.map(e => e[comp]).map((e, i, final) => final.indexOf(e) === i && i).filter(e => allVacations[e]).map(e => allVacations[e]);
+     return unique;
+  };
+allVacations=getUnique(allVacations,'id');
+console.table(allVacations);
+  res.json({ msg: "OK", allVacations: allVacations });
 });
 
 // Unfollow Vacation 
 router.post('/unfollow', async (req, res) => {
-  await pool.query(`UPDATE Vacations SET followers=${req.body.followers - 1} WHERE id=${req.body.id}`)
-  res.json({ msg: "OK" });
+  let unfollow = await pool.query(`SELECT * FROM Vacations WHERE id=${req.body.val}`);
+ let followerId = JSON.stringify(unfollow[0].id); 
+ let followerMinus = JSON.stringify(unfollow[0].followers);   
+ followerMinus--;
+  await pool.query(`UPDATE Vacations SET followers=${followerMinus} WHERE id=${followerId}`)
+  let allVacations = await pool.query(`SELECT * FROM Vacations`);
+  res.json({ msg: "OK", allVacations: allVacations });
 });
 
 // Uploading Image
