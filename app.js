@@ -2,7 +2,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var session = require('express-session')
+var session = require('express-session');
+var mySocketHelper = require('./utils/mysockethelper');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -13,6 +14,11 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+mySocketHelper.startSockets(io);
+server.listen(8888);
 
 
 app.use(session({
