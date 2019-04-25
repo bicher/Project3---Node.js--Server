@@ -31,6 +31,7 @@ router.post('/register', async (req, res) => {
 
 // Login checked 
 router.post('/signin', async (req, res) => {
+  
   let allVacations = await pool.query(`SELECT * FROM Vacations`);
   if (req.session.user) {
           res.json({ allVacations: allVacations, role: req.session.user.role, username: req.session.user.username, firstname: req.session.user.firstname, isLogged: true });
@@ -42,8 +43,13 @@ router.post('/signin', async (req, res) => {
           req.session.user = currentUser;
           res.json({ allVacations: allVacations, role: currentUser.role, username: currentUser.username, firstname: currentUser.firstname, isLogged: true });
       }
-      else {
+      else {  
+        if(req.body.username === undefined){
+          res.json({ msg: "", type: ""});
+        }
+        else{
           res.json({ msg: "Username or password is incorrect!", type: "error" })
+        } 
       }
   }
 });
@@ -117,17 +123,12 @@ router.post('/unfollow', async (req, res) => {
   res.json({allVacations: allVacations });
 });
 
-// Uploading Image
-app.post('/upload', function (req, res) {
-  if (Object.keys(req.files).length == 0) {
-    return res.status(400).send('No files were uploaded.');
-  }
-  let image = req.files.image;
-  image.mv(`./public/images/uploads/${req.body.filename}.jpg`, function (err) {
-    if (err)
-      return res.status(500).send(err);
-    res.send('File uploaded!');
-  });
+router.get('/add', function (req, res) {
+  res.redirect("/");
+
+});
+router.get('/graph', function (req, res) {
+  res.redirect("/");
 });
 
 module.exports = router;

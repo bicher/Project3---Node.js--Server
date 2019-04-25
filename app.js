@@ -7,6 +7,7 @@ var mySocketHelper = require('./utils/mysockethelper');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var bodyParser = require('body-parser');
 
 var app = express();
 app.use(function (req, res, next) {
@@ -14,6 +15,9 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
