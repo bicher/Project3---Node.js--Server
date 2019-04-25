@@ -2,9 +2,8 @@ var express = require('express');
 var router = express.Router();
 var mySocketHelper = require('../utils/mysockethelper');
 var mysql = require('promise-mysql');
-var fileUpload = require('express-fileupload');
-var app = express();
-app.use(fileUpload());
+
+
 
 pool = mysql.createPool({
   host: 'localhost',
@@ -58,6 +57,7 @@ router.post('/signin', async (req, res) => {
 router.get('/logout', function (req, res) {
   req.session.destroy();
   res.json({ msg: "Logout" });
+  
 });
 
 //chacking
